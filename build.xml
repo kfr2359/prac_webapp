@@ -1,0 +1,168 @@
+<project name="prac_db" default="all" >
+    <property name="sql.driver" value="org.mariadb.jdbc.Driver"/>
+    <property name="sql.url" value="jdbc:mysql://127.0.0.1/"/>
+    <property name="sql.user" value="kfr2359"/>
+    <property name="sql.pass" value="aA123456"/>
+
+    <property name="webapp_dir" value="src/main/webapp" />
+    <property name="resources_dir" value="src/main/resources" />
+    
+    <property name="tomcat.base.url" value="http://localhost:8080" />
+    <property name="tomcat.manager.url" value="http://localhost:8080/manager/text" />
+    <property name="tomcat.user.name" value="kfr2359" />
+    <property name="tomcat.user.password" value="aA123456" />
+      
+    <path id="classpath">
+        <pathelement location="bin" />
+        <pathelement location="src" />
+        <fileset dir="lib">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="catalina-ant-classpath">
+       <fileset dir="/usr/share/tomcat8/lib/">
+          <include name="catalina-ant.jar"/>
+          <include name="tomcat-coyote.jar"/>
+          <include name="tomcat-util.jar"/>
+       </fileset>
+       <fileset dir="/usr/share/tomcat8/bin/">
+          <include name="tomcat-juli.jar"/>
+       </fileset>
+    </path>
+
+    <taskdef name="testng" classname="org.testng.TestNGAntTask">
+        <classpath refid="classpath"/>
+    </taskdef>
+
+    <target name="db_init" description="Init DB">
+        <sql
+            driver="${sql.driver}"
+            url="${sql.url}"
+            userid="${sql.user}"
+            password="${sql.pass}"
+            src="create.sql"
+        />
+        <sql
+            driver="${sql.driver}"
+            url="${sql.url}"
+            userid="${sql.user}"
+            password="${sql.pass}"
+            src="insert.sql"
+        />
+    </target>
+    <target name="db_show" description="Show contents of DB">
+        <sql
+            driver="${sql.driver}"
+            url="${sql.url}"
+            userid="${sql.user}"
+            password="${sql.pass}"
+            print="yes"
+            >
+        use prac_db;
+        
+        select 'service_employee' as '';
+        select * from service_employee;
+        
+        select 'service' as '';
+        select * from service;
+        
+        select 'service_type' as '';
+        select * from service_type;
+        
+        select 'employee_phone' as '';
+        select * from employee_phone;
+        
+        select 'employee_email' as '';
+        select * from employee_email;
+        
+        select 'employee' as '';
+        select * from employee;
+        
+        select 'job' as '';
+        select * from job;
+        
+        select 'client_contact_email' as '';
+        select * from client_contact_email;
+        
+        select 'client_contact_phone' as '';
+        select * from client_contact_phone;
+        
+        select 'client_contact' as '';
+        select * from client_contact;
+        
+        select 'client' as '';
+        select * from `client`;    
+            
+        </sql> 
+    </target>
+    <target name="db_drop" description="Clear DB">
+        <sql
+            driver="${sql.driver}"
+            url="${sql.url}"
+            userid="${sql.user}"
+            password="${sql.pass}"
+            >            
+        drop database if exists prac_db;
+        </sql>
+    </target>
+
+    <target name="clean">
+		<delete dir="bin" />
+	</target>
+	
+	<target name="create_dir" depends="clean">
+		<mkdir dir="bin" />
+	</target>
+
+    <target name="compile" depends="create_dir">
+		<javac srcdir="src" classpathref="classpath" includeAntRuntime="No" destdir="bin" />
+	</target>
+    
+    <target name="test" depends="compile">
+        <testng outputdir="bin" classpathref="classpath"> 
+            <xmlfileset dir="src" includes="testng.xml"/>
+        </testng>
+    </target>
+    
+    <target name="war" depends="compile">
+        <war destfile="prac_webapp.war" webxml="${webapp_dir}/web.xml">
+            <webinf dir="${webapp_dir}" />
+            <zipfileset dir="${resources_dir}" prefix="WEB-INF/resources/" />
+            <zipfileset dir="${resources_dir}" prefix="WEB-INF/classes/" />
+            <lib dir="lib" />
+            <classes dir="bin/"/>
+        </war>
+    </target>
+
+	<taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+	<taskdef name="undeploy" classname="org.apache.catalina.ant.UndeployTask">
+        <classpath refid="catalina-ant-classpath"/>
+    </taskdef>
+
+	<target name="undeploy">
+		<undeploy 
+			failonerror="no"
+			url="${tomcat.manager.url}"
+			username="${tomcat.user.name}"
+			password="${tomcat.user.password}"
+			path="/prac_webapp"
+		/>
+	</target>
+	
+	<target name="deploy" description="deploy to tomcat">
+		<deploy 
+			url="${tomcat.manager.url}"
+			username="${tomcat.user.name}"
+			password="${tomcat.user.password}"
+			path="/prac_webapp"
+			war="file:/home/kfr2359/msufldr/prac/6_term/prac_webapp.war"
+		/>
+	</target>
+    
+    <target name="build-and-deploy" depends="war,undeploy,deploy">
+    </target>
+    
+</project>

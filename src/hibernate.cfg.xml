@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-configuration>
+	<session-factory>
+	    <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+		<property name="connection.driver_class">org.mariadb.jdbc.Driver</property>
+		
+		<property name="connection.url">jdbc:mysql://localhost/prac_db</property>
+		<property name="connection.username">kfr2359</property>
+		<property name="connection.password">aA123456</property>
+	    <property name="show_sql">true</property>
+		
+		<mapping class="logic.Client"/>
+	    <mapping class="logic.ClientContact"/>
+	    <mapping class="logic.ClientContactEmail"/>
+	    <mapping class="logic.ClientContactPhone"/>
+	    <mapping class="logic.Employee"/>
+	    <mapping class="logic.EmployeeEmail"/>
+	    <mapping class="logic.EmployeePhone"/>
+	    <mapping class="logic.Job"/>
+	    <mapping class="logic.Service"/>
+	    <mapping class="logic.ServiceEmployee"/>
+	    <mapping class="logic.ServiceType"/>
+
+    </session-factory>
+</hibernate-configuration>
